@@ -12,6 +12,8 @@
 // If file specified then run through the file in the clarity repl
 #[macro_use]
 extern crate anyhow;
+extern crate serde_json;
+
 use std::fs;
 use std::path;
 
@@ -77,7 +79,7 @@ fn main() -> Result<()> {
             Ok(res) => res,
             // Parse diagnotic and return error
             Err((_, Some(parsing_diag))) => {
-                let range = match parsing_diag.spans.len() {
+                let _ = match parsing_diag.spans.len() {
                     0 => Range::default(),
                     _ => Range {
                         start: Position {
@@ -104,8 +106,8 @@ fn main() -> Result<()> {
 
     let diags =
         match clarity_interpreter.run_analysis(contract_identifier.clone(), &mut contract_ast) {
-            Ok(_) => vec![],
-            Err((_, Some(analysis_diag))) => vec![analysis_diag],
+            Ok(_) => Ok(String::from("")),
+            Err((_, Some(analysis_diag))) => serde_json::to_string_pretty(&analysis_diag),
             _ => {
                 println!("Error returned without diagnotic");
                 return Ok(());
@@ -116,10 +118,11 @@ fn main() -> Result<()> {
 
     // Open file and pass into clarity repl
 
-    println!("Hello, world!");
+    // println!("Hello, world!");
     // Reformat output to be like flake8
     // and then hook into the vim plugin
     // Also, my return types will probably change
-    println!("Diags {:?}", diags);
+    println!("{}", diags.unwrap());
+
     return Ok(());
 }
