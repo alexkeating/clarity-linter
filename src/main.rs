@@ -50,8 +50,8 @@ impl Range {
 fn main() -> Result<()> {
     let file_arg = "file";
 
-    let matches = App::new("clarlint")
-        .version("0.1")
+    let matches = App::new("clarity-lint")
+        .version("0.1.1")
         .arg(
             Arg::new(file_arg)
                 .short('f')

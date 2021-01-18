@@ -1,6 +1,6 @@
 [package]
 name = "clarity-lint"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Alexander Keating"]
 license = "MIT"
 description = "A tool to lint clarity files"
