@@ -1,15 +1,3 @@
-// Requirements
-//
-// Input a file
-// And the return the linting errors in that file
-// It will be very basic for now, basically should match the VS Code
-// plugin
-
-// clarlint <file_path>.clar
-
-// Make App
-// Get arge matches
-// If file specified then run through the file in the clarity repl
 #[macro_use]
 extern crate anyhow;
 extern crate serde_json;
@@ -22,29 +10,16 @@ use clap::{App, Arg};
 
 use clarity_repl::{clarity, repl};
 
+#[derive(Debug)]
 struct Position {
     line: u64,
     character: u64,
 }
 
+#[derive(Debug)]
 struct Range {
     start: Position,
     end: Position,
-}
-
-impl Range {
-    fn default() -> Range {
-        Range {
-            start: Position {
-                line: 0,
-                character: 0,
-            },
-            end: Position {
-                line: 0,
-                character: 0,
-            },
-        }
-    }
 }
 
 fn main() -> Result<()> {
@@ -79,27 +54,26 @@ fn main() -> Result<()> {
             Ok(res) => res,
             // Parse diagnotic and return error
             Err((_, Some(parsing_diag))) => {
-                let _ = match parsing_diag.spans.len() {
-                    0 => Range::default(),
-                    _ => Range {
-                        start: Position {
-                            line: parsing_diag.spans[0].start_line as u64 - 1,
-                            character: parsing_diag.spans[0].start_column as u64,
-                        },
-                        end: Position {
-                            line: parsing_diag.spans[0].end_line as u64 - 1,
-                            character: parsing_diag.spans[0].end_column as u64,
-                        },
-                    },
+                let mut parsed_diag = clarity::diagnostic::Diagnostic {
+                    level: parsing_diag.level,
+                    message: parsing_diag.message.clone(),
+                    spans: parsing_diag.spans.clone(),
+                    suggestion: parsing_diag.suggestion.clone(),
                 };
+                parsed_diag.add_span(0, 0, 0, 0);
+                let diag = serde_json::to_string_pretty(&parsed_diag);
                 // Print Diagnotic for now
-                //
-                // I have to figure out how to send this to my vim command
-                println!("Parsing Diagonistic {:?}", parsing_diag);
+                println!("{}", diag.unwrap());
                 return Ok(());
             }
             _ => {
-                println!("Error returned without diagnotic");
+                let diag = serde_json::to_string_pretty(&clarity::diagnostic::Diagnostic {
+                    level: clarity::diagnostic::Level::Error,
+                    message: String::from("No Diagnostic"),
+                    spans: vec![],
+                    suggestion: None,
+                });
+                println!("{}", diag.unwrap());
                 return Ok(());
             }
         };
@@ -109,19 +83,17 @@ fn main() -> Result<()> {
             Ok(_) => Ok(String::from("")),
             Err((_, Some(analysis_diag))) => serde_json::to_string_pretty(&analysis_diag),
             _ => {
-                println!("Error returned without diagnotic");
+                let diag = serde_json::to_string_pretty(&clarity::diagnostic::Diagnostic {
+                    level: clarity::diagnostic::Level::Error,
+                    message: String::from("No Diagnostic"),
+                    spans: vec![],
+                    suggestion: None,
+                });
+                println!("{}", diag.unwrap());
                 return Ok(());
             }
         };
 
-    // Lint Contract
-
-    // Open file and pass into clarity repl
-
-    // println!("Hello, world!");
-    // Reformat output to be like flake8
-    // and then hook into the vim plugin
-    // Also, my return types will probably change
     println!("{}", diags.unwrap());
 
     return Ok(());
