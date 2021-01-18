@@ -50,7 +50,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: target/release/clarity-linter.exe
+          files: target/release/clarity-lint.exe
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
