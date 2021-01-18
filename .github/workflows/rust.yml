@@ -18,7 +18,7 @@ jobs:
           override: true
 
       - name: Build
-        run: cargo build --all --release && strip target/release/clarity-linter && mv target/release/clarity-linter target/release/clarity-linter_amd64
+        run: cargo build --all --release && strip target/release/clarity-lint && mv target/release/clarity-lint target/release/clarity-linter_amd64
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -70,7 +70,7 @@ jobs:
           override: true
 
       - name: Build for mac
-        run: cargo build --all --release && strip target/release/clarity-linter && mv target/release/clarity-linter target/release/clarity-linter_darwin
+        run: cargo build --all --release && strip target/release/clarity-lint && mv target/release/clarity-lint target/release/clarity-linter_darwin
 
       - name: Release
         uses: softprops/action-gh-release@v1
